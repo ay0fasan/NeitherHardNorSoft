@@ -1,26 +1,9 @@
-# Prerequisites
-*.d
-
 # Object files
 *.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
 
 # Libraries
 *.lib
 *.a
-*.la
-*.lo
 
 # Shared objects (inc. Windows DLLs)
 *.dll
@@ -32,21 +15,26 @@
 *.exe
 *.out
 *.app
-*.i*86
-*.x86_64
+*.elf
 *.hex
+*.map
+*.bin
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+# listing files
+*.lss
+*.lst
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+#vim temp files
+.*.sw*
+
+# dependency directories
+.deps
+
+# build folders
+/build
+
+# pycache folders
+/.github/__pycache__
+
+# vscode folders
+/.vscode
