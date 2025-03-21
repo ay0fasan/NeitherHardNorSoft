@@ -120,6 +120,12 @@ clang-format -i <NAME OF FILE>
 
 Replace <NAME OF FILE> with the path to the file you wish to format.
 
+OR
+
+````bash
+./format.sh <directory>
+```
+
 
 ## Additional Notes
 
