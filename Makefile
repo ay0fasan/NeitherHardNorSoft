@@ -81,6 +81,7 @@ DEVICE_SRCS = \
 		$(DEVICE_DIR)/$(DEVICE)/system_stm32f2xx.c	\
 
 DRIVER_SRCS = \
+		$(DRIVER_DIR)/uart/uart.c					\
 
 PERIPHERAL_SRCS = \
 		
@@ -90,6 +91,7 @@ SERVICES_SRCS = \
 
 HAL_SRCS = \
 	$(HAL)/Src/stm32f2xx_hal.c				\
+	$(HAL)/Src/stm32f2xx_hal_uart.c			\
 
 FREERTOS_SRCS =	\
 	$(FREERTOS)/tasks.c							\
