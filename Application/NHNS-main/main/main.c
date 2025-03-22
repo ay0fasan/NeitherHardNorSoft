@@ -1,4 +1,10 @@
-// --- Defines and Macros ---
+#include <stdbool.h>
+#include <string.h>
+#include "nhns_status_codes.h"
+#include "board.h"
+#include "uart.h"
+
+// --- Defines ---
 
 // --- Types ---
 
@@ -6,8 +12,14 @@
 
 // --- Functions ---
 
-int main (void)
+int main(void)
 {
+    // 1) STM32 HAL library initialization
+    HAL_Init();
+
+    // 2) Configure the system clock
+    SystemClock_Config();
+
     while (1)
     {
         /* code */

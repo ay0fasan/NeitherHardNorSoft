@@ -23,7 +23,7 @@ APPLICATION_INCLUDE = $(patsubst %/,%,$(dir $(APPLICATION_HEADERS)))
 
 # Include all header files in the Board directory
 BOARD_DIR = Board
-BOARD_HEADERS = $(wildcard $(BOARD_DIR)/$(BOARD)/*.h)
+BOARD_HEADERS = $(wildcard $(BOARD_DIR)/*.h)
 BOARD_INCLUDE = $(patsubst %/,%,$(dir $(BOARD_HEADERS)))
 
 # Include all header files in the Device directory
@@ -57,7 +57,7 @@ FREERTOS = Library/FreeRTOS
 
 ########## Compiler Flags ##########
 
-CFLAGS  = -g -O3 -Wall
+CFLAGS  = -g -O0 -Wall
 CFLAGS += -mlittle-endian -mcpu=cortex-m3 -mthumb
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wl,--gc-sections -Wl,-Map=$(BUILD_DIR)/$(TARGET).map
@@ -74,6 +74,7 @@ APPLICATION_SRCS = \
 		$(APPLICATION_DIR)/$(APPLICATION)/main/main.c			\
 
 BOARD_SRCS = \
+		$(BOARD_DIR)/board.c
 
 DEVICE_SRCS = \
 		$(DEVICE_DIR)/$(DEVICE)/stm32f2xx_it.c		\
@@ -81,6 +82,7 @@ DEVICE_SRCS = \
 		$(DEVICE_DIR)/$(DEVICE)/system_stm32f2xx.c	\
 
 DRIVER_SRCS = \
+		$(DRIVER_DIR)/uart/uart.c					\
 
 PERIPHERAL_SRCS = \
 		
@@ -90,6 +92,18 @@ SERVICES_SRCS = \
 
 HAL_SRCS = \
 	$(HAL)/Src/stm32f2xx_hal.c				\
+	$(HAL)/Src/stm32f2xx_hal_adc.c 			\
+	$(HAL)/Src/stm32f2xx_hal_adc_ex.c		\
+	$(HAL)/Src/stm32f2xx_hal_cortex.c		\
+	$(HAL)/Src/stm32f2xx_hal_dma.c			\
+	$(HAL)/Src/stm32f2xx_hal_gpio.c			\
+	$(HAL)/Src/stm32f2xx_hal_flash.c		\
+	$(HAL)/Src/stm32f2xx_hal_flash_ex.c		\
+	$(HAL)/Src/stm32f2xx_hal_pwr.c			\
+	$(HAL)/Src/stm32f2xx_hal_pwr_ex.c		\
+	$(HAL)/Src/stm32f2xx_hal_rcc.c			\
+	$(HAL)/Src/stm32f2xx_hal_rcc_ex.c		\
+	$(HAL)/Src/stm32f2xx_hal_uart.c			\
 
 FREERTOS_SRCS =	\
 	$(FREERTOS)/tasks.c							\
