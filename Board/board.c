@@ -42,23 +42,10 @@ void HAL_MspInit(void)
  */
 void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
-    HAL_StatusTypeDef nHalRet                        = HAL_OK;
-    GPIO_InitTypeDef GPIO_InitStruct                 = {0};
-    RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     if (huart->Instance == UART_DEBUG)
     {
-        RCC_PeriphCLKInitStruct.PeriphClockSelection = UART_DEBUG_RCC_PERIPHCLK;
-        RCC_PeriphCLKInitStruct.Usart1ClockSelection =
-            UART_DEBUG_RCC_CLKSOURCE_SYSCLK;
-
-        nHalRet = HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct);
-        if (nHalRet != HAL_OK)
-        {
-            Logger_ERROR("%s %d %d", __FUNCTION__, __LINE__, nHalRet);
-            return;
-        }
-
         // Enable UART clock
         UART_DEBUG_CLOCK_ENABLE();
 
@@ -94,7 +81,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
     if (huart->Instance == UART_DEBUG)
     {
         // Disable the UART clock
-        UART_DEBUG_RELEASE_RESET();
+        UART_DEBUG_CLOCK_DISABLE();
 
         HAL_GPIO_DeInit(UART_DEBUG_TX_PORT, UART_DEBUG_TX_PIN);
         HAL_GPIO_DeInit(UART_DEBUG_RX_PORT, UART_DEBUG_RX_PIN);

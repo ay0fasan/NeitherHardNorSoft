@@ -118,7 +118,7 @@ nhns_status_t UART_Transmit(uart_instance_t nID, uint8_t *pTxData, uint16_t bLen
     }
 
     // 2) Check if module is initialized
-    if (gsCntxt[nID].fInitDone)
+    if (!gsCntxt[nID].fInitDone)
     {
         return NHNS_STATUS_MODULE_NOT_INIT;
     }
@@ -142,7 +142,7 @@ nhns_status_t UART_Receive(uart_instance_t nID, uint8_t *pRxData, uint16_t bLeng
     }
 
     // 2) Check if module is initialized
-    if (gsCntxt[nID].fInitDone)
+    if (!gsCntxt[nID].fInitDone)
     {
         return NHNS_STATUS_MODULE_NOT_INIT;
     }
