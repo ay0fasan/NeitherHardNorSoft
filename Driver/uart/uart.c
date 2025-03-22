@@ -1,28 +1,31 @@
 #include <stdbool.h>
 #include "uart.h"
 #include "board.h"
+#include "logger.h"
 #include "stm32f2xx_hal.h"
 
 // --- Definitions ---
 
 #define UART_RX_TX_TIMEOUT 5000
 
-#define UART_CHECK_RETURN(nRet)     \
-    do                              \
-    {                               \
-        if (nRet != NHNS_STATUS_OK) \
-        {                           \
-            return nRet;            \
-        }                           \
+#define UART_CHECK_RETURN(nRet)                                   \
+    do                                                            \
+    {                                                             \
+        if (nRet != NHNS_STATUS_OK)                               \
+        {                                                         \
+            LOGGER_LOG("%s %d %d", __FUNCTION__, __LINE__, nRet); \
+            return nRet;                                          \
+        }                                                         \
     } while (0)
 
-#define UART_CHECK_HAL_RETURN(nHALRet)               \
-    do                                               \
-    {                                                \
-        if (nHALRet != HAL_OK)                       \
-        {                                            \
-            return (NHNS_STATUS_BASE_STM + nHALRet); \
-        }                                            \
+#define UART_CHECK_HAL_RETURN(nHALRet)                            \
+    do                                                            \
+    {                                                             \
+        if (nHALRet != HAL_OK)                                    \
+        {                                                         \
+            LOGGER_LOG("%s %d %d", __FUNCTION__, __LINE__, nRet); \
+            return (NHNS_STATUS_BASE_STM + nHALRet);              \
+        }                                                         \
     } while (0)
 
 // --- Types ---
@@ -35,7 +38,7 @@ typedef struct uart_context
 
 // --- Global Variables ---
 
-uart_context_t gsCntxt[UART_INSTANCE_MAX] = {0};
+static uart_context_t gsCntxt[UART_INSTANCE_MAX] = {0};
 
 // --- Functions ---
 
@@ -124,7 +127,7 @@ nhns_status_t UART_Transmit(uart_instance_t nID, uint8_t *pTxData, uint16_t bLen
     }
 
     // 3) Tranmit data
-    nHalRet = HAL_UART_Transmit(&gsCntxt[nID].sUARTHandle, pTxData, bLength, UART_RX_TX_TIMEOUT);
+    nHalRet = HAL_UART_Transmit(&gsCntxt[nID].sUARTHandle, pTxData, bLength, HAL_MAX_DELAY);
     UART_CHECK_HAL_RETURN(nHalRet);
 
     return nRet;
@@ -148,7 +151,7 @@ nhns_status_t UART_Receive(uart_instance_t nID, uint8_t *pRxData, uint16_t bLeng
     }
 
     // 3) Receive data
-    nHalRet = HAL_UART_Receive(&gsCntxt[nID].sUARTHandle, pRxData, bLength, UART_RX_TX_TIMEOUT);
+    nHalRet = HAL_UART_Receive(&gsCntxt[nID].sUARTHandle, pRxData, bLength, HAL_MAX_DELAY);
     UART_CHECK_HAL_RETURN(nHalRet);
 
     return nRet;

@@ -40,6 +40,7 @@ nhns_status_t Logger_Init(void)
     // 2) Initialize UART
     nRet = UART_Init(UART_INSTANCE_DEBUG);
     LOGGER_CHECK_RETURN(nRet);
+    UART_Transmit(UART_INSTANCE_DEBUG, (uint8_t *)"LoggerInitDone ", strlen("LoggerInitDone ")); 
 
     // 3) Mark as initialized
     gsCntxt.fInitDone = true;

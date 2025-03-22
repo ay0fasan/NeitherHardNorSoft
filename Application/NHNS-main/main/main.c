@@ -2,7 +2,7 @@
 #include <string.h>
 #include "nhns_status_codes.h"
 #include "board.h"
-#include "uart.h"
+#include "logger.h"
 
 // --- Defines ---
 
@@ -20,8 +20,12 @@ int main(void)
     // 2) Configure the system clock
     SystemClock_Config();
 
+    // 3) Initialize the logger
+    Logger_Init();
+
+    // 4) Main loop - we should not get here as OS has taken over
     while (1)
     {
-        /* code */
+        // Do nothing
     }
 }
