@@ -1,3 +1,6 @@
+#ifndef UART_H
+#define UART_H
+
 #include <stdint.h>
 #include "nhns_status_codes.h"
 
@@ -43,3 +46,5 @@ nhns_status_t UART_Transmit(uart_instance_t nID, uint8_t *pTxData, uint16_t bLen
  * @retval Status code indicating operation success or reason for failure
  */
 nhns_status_t UART_Receive(uart_instance_t nID, uint8_t *pRxData, uint16_t bLength);
+
+#endif    // UART_H

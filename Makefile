@@ -74,7 +74,7 @@ APPLICATION_SRCS = \
 		$(APPLICATION_DIR)/$(APPLICATION)/main/main.c			\
 
 BOARD_SRCS = \
-		$(BOARD_DIR)/board.c
+		$(BOARD_DIR)/board.c						\
 
 DEVICE_SRCS = \
 		$(DEVICE_DIR)/$(DEVICE)/stm32f2xx_it.c		\
@@ -87,6 +87,7 @@ DRIVER_SRCS = \
 PERIPHERAL_SRCS = \
 		
 SERVICES_SRCS = \
+	    $(SERVICES_DIR)/logger/logger.c				\
 
 ########## Library Source Files ##########
 
