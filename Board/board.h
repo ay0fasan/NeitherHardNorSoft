@@ -1,6 +1,6 @@
 
-#ifndef __BOARD_H__
-#define __BOARD_H__
+#ifndef BOARD_H
+#define BOARD_H
 
 #include "stm32f2xx_hal.h"
 
@@ -26,4 +26,4 @@
  */
 void SystemClock_Config(void);
 
-#endif    // __BOARD_H__
+#endif    // BOARD_H
