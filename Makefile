@@ -88,6 +88,7 @@ PERIPHERAL_SRCS = \
 		
 SERVICES_SRCS = \
 	    $(SERVICES_DIR)/logger/logger.c				\
+		$(SERVICES_DIR)/os/os.c 					\
 
 ########## Library Source Files ##########
 
