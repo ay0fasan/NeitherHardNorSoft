@@ -52,6 +52,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         // Enable the GPIO clock(s)
         __HAL_RCC_GPIOD_CLK_ENABLE();
 
+        // Initialize GPIO pins
         GPIO_InitStruct.Pin       = UART_DEBUG_TX_PIN;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -65,6 +66,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = UART_DEBUG_AF;
         HAL_GPIO_Init(UART_DEBUG_RX_PORT, &GPIO_InitStruct);
+
+        // Initialize interrupt
+        HAL_NVIC_SetPriority(UART_DEBUG_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(UART_DEBUG_IRQn);
     }
 }
 
@@ -79,7 +84,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         // Disable the UART clock
         UART_DEBUG_CLOCK_DISABLE();
 
+        // Deinitialize GPIOs
         HAL_GPIO_DeInit(UART_DEBUG_TX_PORT, UART_DEBUG_TX_PIN);
         HAL_GPIO_DeInit(UART_DEBUG_RX_PORT, UART_DEBUG_RX_PIN);
+
+        // Deinitialize intertupt
+        HAL_NVIC_DisableIRQ(UART_DEBUG_IRQn);
     }
 }

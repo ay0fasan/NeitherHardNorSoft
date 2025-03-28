@@ -19,6 +19,8 @@
 
 #define UART_DEBUG_AF              GPIO_AF7_USART3
 
+#define UART_DEBUG_IRQn            USART3_IRQn
+
 // --- Functions ---
 
 /**

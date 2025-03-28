@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "board.h"
 #include "logger.h"
+#include "os.h"
 #include "stm32f2xx_hal.h"
 
 // --- Definitions ---
@@ -34,6 +35,8 @@ typedef struct uart_context
 {
     bool fInitDone;
     UART_HandleTypeDef sUARTHandle;
+    os_semaphore_t sUARTTxCompleteSemaphore;
+    os_semaphore_t sUARTRxCompleteSemaphore;
 } uart_context_t;
 
 // --- Global Variables ---
@@ -76,7 +79,14 @@ nhns_status_t UART_Init(uart_instance_t nID)
     nHalRet = HAL_UART_Init(&gsCntxt[nID].sUARTHandle);
     UART_CHECK_HAL_RETURN(nHalRet);
 
-    // 5) Mark as initialized
+    // 5) Create semaphores
+    nRet = OS_SemaphoreCreate(&gsCntxt[nID].sUARTRxCompleteSemaphore);
+    UART_CHECK_RETURN(nRet);
+
+    nRet = OS_SemaphoreCreate(&gsCntxt[nID].sUARTTxCompleteSemaphore);
+    UART_CHECK_RETURN(nRet);
+
+    // 6) Mark as initialized
     gsCntxt[nID].fInitDone = true;
 
     return nRet;
@@ -99,11 +109,18 @@ nhns_status_t UART_DeInit(uart_instance_t nID)
         return NHNS_STATUS_OK;
     }
 
-    // 3) Deinitialize UART
+    // 3) Delete semaphores
+    nRet = OS_SemaphoreDelete(gsCntxt[nID].sUARTRxCompleteSemaphore);
+    UART_CHECK_RETURN(nRet);
+
+    nRet = OS_SemaphoreDelete(gsCntxt[nID].sUARTTxCompleteSemaphore);
+    UART_CHECK_RETURN(nRet);
+
+    // 4) Deinitialize UART
     nHalRet = HAL_UART_DeInit(&gsCntxt[nID].sUARTHandle);
     UART_CHECK_HAL_RETURN(nHalRet);
 
-    // 4) Mark as deinitialized
+    // 5) Mark as deinitialized
     gsCntxt[nID].fInitDone = false;
 
     return nRet;
@@ -127,8 +144,12 @@ nhns_status_t UART_Transmit(uart_instance_t nID, uint8_t *pTxData, uint16_t bLen
     }
 
     // 3) Tranmit data
-    nHalRet = HAL_UART_Transmit(&gsCntxt[nID].sUARTHandle, pTxData, bLength, HAL_MAX_DELAY);
+    nHalRet = HAL_UART_Transmit_IT(&gsCntxt[nID].sUARTHandle, pTxData, bLength);
     UART_CHECK_HAL_RETURN(nHalRet);
+
+    // 4) Take UART transmit semaphore
+    nRet = OS_SemaphoreTake(gsCntxt[nID].sUARTTxCompleteSemaphore, UART_RX_TX_TIMEOUT);
+    UART_CHECK_RETURN(nRet);
 
     return nRet;
 }
@@ -151,8 +172,30 @@ nhns_status_t UART_Receive(uart_instance_t nID, uint8_t *pRxData, uint16_t bLeng
     }
 
     // 3) Receive data
-    nHalRet = HAL_UART_Receive(&gsCntxt[nID].sUARTHandle, pRxData, bLength, HAL_MAX_DELAY);
+    nHalRet = HAL_UART_Receive_IT(&gsCntxt[nID].sUARTHandle, pRxData, bLength);
     UART_CHECK_HAL_RETURN(nHalRet);
 
+    // 4) Take UART receive semaphore
+    nRet = OS_SemaphoreTake(gsCntxt[nID].sUARTRxCompleteSemaphore, UART_RX_TX_TIMEOUT);
+    UART_CHECK_RETURN(nRet);
+
     return nRet;
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    // 1) Give UART transmit semaphore
+    if (huart->Instance == UART_DEBUG)
+    {
+        OS_SemaphoreGive(gsCntxt[UART_INSTANCE_DEBUG].sUARTTxCompleteSemaphore);
+    }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    // 1) Give UART receive semaphore
+    if (huart->Instance == UART_DEBUG)
+    {
+        OS_SemaphoreGive(gsCntxt[UART_INSTANCE_DEBUG].sUARTRxCompleteSemaphore);
+    }
 }
