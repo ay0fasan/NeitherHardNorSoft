@@ -148,10 +148,10 @@ nhns_status_t OS_TaskDelete(task_id_t nID)
 
 // Queue Functions
 
-nhns_status_t OS_QueueCreate(os_queue_t *pQueueHandle, uint32_t bQueueLength, uint32_t bItemSize)
+nhns_status_t OS_QueueCreate(os_queue_t *psQueueHandle, uint32_t bQueueLength, uint32_t bItemSize)
 {
     // 1) Check arguments
-    if (pQueueHandle == NULL || bQueueLength == 0 || bItemSize == 0)
+    if (psQueueHandle == NULL || bQueueLength == 0 || bItemSize == 0)
     {
         return NHNS_STATUS_INVALID_ARGUMENT;
     }
@@ -163,8 +163,8 @@ nhns_status_t OS_QueueCreate(os_queue_t *pQueueHandle, uint32_t bQueueLength, ui
     }
 
     // 3) Create the queue
-    *pQueueHandle = xQueueCreate(bQueueLength, bItemSize);
-    if (*pQueueHandle == NULL)
+    *psQueueHandle = xQueueCreate(bQueueLength, bItemSize);
+    if (*psQueueHandle == NULL)
     {
         return NHNS_STATUS_FAIL;
     }
@@ -172,27 +172,21 @@ nhns_status_t OS_QueueCreate(os_queue_t *pQueueHandle, uint32_t bQueueLength, ui
     return NHNS_STATUS_OK;
 }
 
-nhns_status_t OS_QueueDelete(os_queue_t pQueueHandle)
+nhns_status_t OS_QueueDelete(os_queue_t sQueueHandle)
 {
-    // 1) Check arguments
-    if (pQueueHandle == NULL)
-    {
-        return NHNS_STATUS_INVALID_ARGUMENT;
-    }
-
-    // 2) Check if we're inside an ISR as queue deletion from ISR is not allowed in FreeRTOS
+    // 1) Check if we're inside an ISR as queue deletion from ISR is not allowed in FreeRTOS
     if (OS_IS_INSIDE_ISR())
     {
         return NHNS_STATUS_FORBIDDEN;
     }
 
-    // 3) Delete the queue
-    vQueueDelete(pQueueHandle);
+    // 2) Delete the queue
+    vQueueDelete(sQueueHandle);
 
     return NHNS_STATUS_OK;
 }
 
-nhns_status_t OS_QueueSend(os_queue_t pQueueHandle, const void *pQueueItem, uint32_t bTimeoutMs)
+nhns_status_t OS_QueueSend(os_queue_t sQueueHandle, const void *pQueueItem, uint32_t bTimeoutMs)
 {
     BaseType_t nRetInternal             = pdPASS;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -200,7 +194,7 @@ nhns_status_t OS_QueueSend(os_queue_t pQueueHandle, const void *pQueueItem, uint
     TickType_t bElapsedTickCount        = 0;
 
     // 1) Check arguments
-    if (pQueueHandle == NULL || pQueueItem == NULL)
+    if (pQueueItem == NULL)
     {
         return NHNS_STATUS_INVALID_ARGUMENT;
     }
@@ -208,7 +202,7 @@ nhns_status_t OS_QueueSend(os_queue_t pQueueHandle, const void *pQueueItem, uint
     // 2) Check if we're inside an ISR and appropriately write item to back of the queue
     if (OS_IS_INSIDE_ISR())
     {
-        nRetInternal = xQueueSendToBackFromISR(pQueueHandle, pQueueItem, &xHigherPriorityTaskWoken);
+        nRetInternal = xQueueSendToBackFromISR(sQueueHandle, pQueueItem, &xHigherPriorityTaskWoken);
         if (nRetInternal != pdPASS)
         {
             return (NHNS_STATUS_BASE_RTOS + nRetInternal);
@@ -220,7 +214,7 @@ nhns_status_t OS_QueueSend(os_queue_t pQueueHandle, const void *pQueueItem, uint
     {
         bInitialTickCount = xTaskGetTickCount();
 
-        nRetInternal = xQueueSendToBack(pQueueHandle, pQueueItem, OS_MS_TO_TICKS(bTimeoutMs));
+        nRetInternal = xQueueSendToBack(sQueueHandle, pQueueItem, OS_MS_TO_TICKS(bTimeoutMs));
         if (nRetInternal != pdPASS)
         {
             bElapsedTickCount = xTaskGetTickCount() - bInitialTickCount;
@@ -238,7 +232,7 @@ nhns_status_t OS_QueueSend(os_queue_t pQueueHandle, const void *pQueueItem, uint
     return NHNS_STATUS_OK;
 }
 
-nhns_status_t OS_QueueReceive(os_queue_t pQueueHandle, void *pQueueItem, uint32_t bTimeoutMs)
+nhns_status_t OS_QueueReceive(os_queue_t sQueueHandle, void *pQueueItem, uint32_t bTimeoutMs)
 {
     BaseType_t nRetInternal             = pdPASS;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -246,7 +240,7 @@ nhns_status_t OS_QueueReceive(os_queue_t pQueueHandle, void *pQueueItem, uint32_
     TickType_t bElapsedTickCount        = 0;
 
     // 1) Check arguments
-    if (pQueueHandle == NULL || pQueueItem == NULL)
+    if (pQueueItem == NULL)
     {
         return NHNS_STATUS_INVALID_ARGUMENT;
     }
@@ -254,7 +248,7 @@ nhns_status_t OS_QueueReceive(os_queue_t pQueueHandle, void *pQueueItem, uint32_
     // 2) Check if we're inside an ISR and appropriately read item from back of the queue
     if (OS_IS_INSIDE_ISR())
     {
-        nRetInternal = xQueueReceiveFromISR(pQueueHandle, pQueueItem, &xHigherPriorityTaskWoken);
+        nRetInternal = xQueueReceiveFromISR(sQueueHandle, pQueueItem, &xHigherPriorityTaskWoken);
         if (nRetInternal != pdPASS)
         {
             return (NHNS_STATUS_BASE_RTOS + nRetInternal);
@@ -266,7 +260,7 @@ nhns_status_t OS_QueueReceive(os_queue_t pQueueHandle, void *pQueueItem, uint32_
     {
         bInitialTickCount = xTaskGetTickCount();
 
-        nRetInternal = xQueueReceive(pQueueHandle, pQueueItem, OS_MS_TO_TICKS(bTimeoutMs));
+        nRetInternal = xQueueReceive(sQueueHandle, pQueueItem, OS_MS_TO_TICKS(bTimeoutMs));
         if (nRetInternal != pdPASS)
         {
             bElapsedTickCount = xTaskGetTickCount() - bInitialTickCount;
@@ -290,4 +284,112 @@ void OS_DelayMs(uint32_t bMilliseconds)
 {
     // 1) Delay for the specified number of ticks
     vTaskDelay(OS_MS_TO_TICKS(bMilliseconds));
+}
+
+// Semaphore Functions
+
+nhns_status_t OS_SemaphoreCreate(os_semaphore_t *pSemaphoreHandle)
+{
+    // 1) Verify argument
+    if (pSemaphoreHandle == NULL)
+    {
+        return NHNS_STATUS_INVALID_ARGUMENT;
+    }
+
+    // 2) Check if we're inside an ISR as semaphore creation from ISR is not allowed in FreeRTOS
+    if (OS_IS_INSIDE_ISR())
+    {
+        return NHNS_STATUS_FORBIDDEN;
+    }
+
+    // 3) Create the semaphore
+    *pSemaphoreHandle = xSemaphoreCreateBinary();
+    if (*pSemaphoreHandle == NULL)
+    {
+        return NHNS_STATUS_FAIL;
+    }
+
+    return NHNS_STATUS_OK;
+}
+
+nhns_status_t OS_SemaphoreDelete(os_semaphore_t pSemaphoreHandle)
+{
+    // 1) Check if we're inside an ISR as semaphore deletion from ISR is not allowed in FreeRTOS
+    if (OS_IS_INSIDE_ISR())
+    {
+        return NHNS_STATUS_FORBIDDEN;
+    }
+
+    // 2) Delete the semaphore
+    vSemaphoreDelete(pSemaphoreHandle);
+
+    return NHNS_STATUS_OK;
+}
+
+nhns_status_t OS_SemaphoreTake(os_semaphore_t pSemaphoreHandle, uint32_t bTimeoutMs)
+{
+    BaseType_t nRetInternal             = pdPASS;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    TickType_t bInitialTickCount        = 0;
+    TickType_t bElapsedTickCount        = 0;
+
+    // 1) Check if we're inside an ISR and appropriately take the semaphore
+    if (OS_IS_INSIDE_ISR())
+    {
+        nRetInternal = xSemaphoreTakeFromISR(pSemaphoreHandle, &xHigherPriorityTaskWoken);
+        if (nRetInternal != pdPASS)
+        {
+            return (NHNS_STATUS_BASE_RTOS + nRetInternal);
+        }
+
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+    else
+    {
+        bInitialTickCount = xTaskGetTickCount();
+
+        nRetInternal = xSemaphoreTake(pSemaphoreHandle, OS_MS_TO_TICKS(bTimeoutMs));
+        if (nRetInternal != pdPASS)
+        {
+            bElapsedTickCount = xTaskGetTickCount() - bInitialTickCount;
+            if (bElapsedTickCount >= OS_MS_TO_TICKS(bTimeoutMs))
+            {
+                return NHNS_STATUS_TIMEOUT;
+            }
+            else
+            {
+                return (NHNS_STATUS_BASE_RTOS + nRetInternal);
+            }
+        }
+    }
+
+    return NHNS_STATUS_OK;
+}
+
+nhns_status_t OS_SemaphoreGive(os_semaphore_t pSemaphoreHandle)
+{
+    BaseType_t nRetInternal             = pdPASS;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    // 1) Check if we're inside an ISR and appropriately give the semaphore
+    if (OS_IS_INSIDE_ISR())
+    {
+        nRetInternal = xSemaphoreGiveFromISR(pSemaphoreHandle, &xHigherPriorityTaskWoken);
+        if (nRetInternal != pdPASS)
+        {
+            return (NHNS_STATUS_BASE_RTOS + nRetInternal);
+        }
+
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+    else
+    {
+        nRetInternal = xSemaphoreGive(pSemaphoreHandle);
+        if (nRetInternal != pdPASS)
+        {
+            return (NHNS_STATUS_BASE_RTOS + nRetInternal);
+        }
+    }
+
+    return NHNS_STATUS_OK;
 }
