@@ -17,7 +17,6 @@ typedef enum task_id
 {
     TASK_ID_INVALID = -1,
     TASK_ID_DEFAULT,
-    TASK_ID_LOGGER,
     TASK_ID_MAX,
 } task_id_t;
 

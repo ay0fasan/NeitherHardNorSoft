@@ -33,7 +33,6 @@ static os_state_t gnSchedulerState = OS_STATE_NOT_STARTED;
 
 static const task_config_t gsTaskList[] = {
     //-------------------- highest priority ------------------
-    {TASK_ID_LOGGER,  "logger",  512, 1},
     //--------------------- lowest priority ------------------
     {TASK_ID_DEFAULT, "default", 512, 0},
 };
